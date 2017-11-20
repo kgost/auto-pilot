@@ -19,18 +19,21 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 			throw err;
 		}
 
-		let q = async.queue( startStream );
+		let q = async.queue( startStream, 30 );
 		q.drain = function() {
 			process.exit();
 		}
 
 		for ( let i = 0; i < users.length; i++ ) {
-			q.push( users[i], defaults._id );
+			q.push( { user: users[i], defaultsId: defaults._id } );
 		}
 	} );
 } );
 
-function startStream( user, defaultsId, callback ) {
+function startStream( task, callback ) {
+	let user = task.user;
+	let defaultsId = task.defaultsId;
+
 	let client = new Twitter({
 		consumer_key: user.cKey,
 		consumer_secret: user.cSecret,
