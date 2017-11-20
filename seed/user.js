@@ -9,7 +9,7 @@ banned.sort( function( a, b ) {
 	return a.localeCompare( b );
 } );
 
-User.create( { name: 'itsastitchus', filterTerms: ['knit', 'sew', 'fabric', 'handmade', 'diy', 'craft', 'paint', 'garden', 'decor', 'vintage'], bannedWords: banned }, function( err ) {
+User.create( { name: 'itsastitchus', cKey: 'PAlu3fhZyNJY6xrqajygBh3FN', cSecret: 'WgHw7PHkFTjBpaCFegzGZHjmRlxB0CfFBB8q9jhnfV8nLEYZns', aKey: '842436675821215744-nujuvDpOBKS9UV5DV16WgKbbrLD5qMm', aSecret: 'UX8fC0UMxuNFBLTPbcqLz2HM219Pv5kMYQ2DdksgFY7vO', filterTerms: ['knit', 'sew', 'fabric', 'handmade', 'diy', 'craft', 'paint', 'garden', 'decor', 'vintage'], bannedWords: banned }, function( err ) {
 	if ( err ) {
 		throw err;
 	}
