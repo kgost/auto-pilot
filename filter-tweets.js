@@ -111,7 +111,7 @@ function startStream( user, defaultsId ) {
 		console.log( err );
 	} );
 
-	return this;
+	return stream;
 }
 
 function matchId( list, id ) {
