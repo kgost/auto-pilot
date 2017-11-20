@@ -42,8 +42,6 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 		let stream = client.stream( 'statuses/filter', { track: track, tweet_mode: 'extended' } );
 
 		stream.on( 'data', function( event ) {
-			console.log( event );
-
 			User.findById( user._id, function( err, user ) {
 				if ( err ) {
 					console.log( err );
@@ -59,8 +57,8 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 						&& !matchId( defaults.bannedUserIds, event.user.id ) 
 						&& !matchId( user.bannedUserIds, event.user.id ) 
 						&& !matchId( user.coolingUserIds, event.user.id )
-						&& !matchWord( defaults.bannedWords, event.full_text )
-						&& !matchWord( user.bannedWords, event.full_text ) ) {
+						&& !matchWord( defaults.bannedWords, event.extended_tweet.full_text )
+						&& !matchWord( user.bannedWords, event.extended_tweet.full_text ) ) {
 							let following = ( event.user.following == null ) ? false : true;
 							let start = 0;
 							let end = user.potentialRTs.length - 1;
@@ -145,8 +143,8 @@ function startStream( user, defaultsId ) {
 					&& !matchId( defaults.bannedUserIds, event.user.id ) 
 					&& !matchId( user.bannedUserIds, event.user.id ) 
 					&& !matchId( user.coolingUserIds, event.user.id )
-					&& !matchWord( defaults.bannedWords, event.full_text )
-					&& !matchWord( user.bannedWords, event.full_text ) ) {
+					&& !matchWord( defaults.bannedWords, event.extended_tweet.full_text )
+					&& !matchWord( user.bannedWords, event.extended_tweet.full_text ) ) {
 						let following = ( event.user.following == null ) ? false : true;
 						let start = 0;
 						let end = user.potentialRTs.length - 1;
