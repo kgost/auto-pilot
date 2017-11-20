@@ -51,11 +51,11 @@ function startStream( user, defaultsId ) {
 		}
 	}
 
-	let stream = client.stream( 'statuses/filter?tweet_mode=extended', { track: track } );
+	let stream = client.stream( 'statuses/filter', { track: track } );
 
 	stream.on( 'data', function( event ) {
 		console.log( event );
-		
+
 		User.findById( user._id, function( err, user ) {
 			if ( err ) {
 				console.log( err );
