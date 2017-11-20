@@ -19,7 +19,7 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 			throw err;
 		}
 
-		startStream( { user: users[0], defaultsId: defaults._id } )
+		startStream( { user: users[0], defaultsId: defaults._id, that: this } )
 
 		// let q = async.queue( startStream, 30 );
 		// q.drain = function() {
@@ -33,6 +33,8 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 } );
 
 function startStream( task, callback ) {
+	this = task.that;
+
 	let user = task.user;
 	let defaultsId = task.defaultsId;
 
