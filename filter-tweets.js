@@ -19,65 +19,49 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 			throw err;
 		}
 
-		let user = users[0];
-		let defaultsId = defaults._id;
+		let q = async.queue( startStream );
+		q.drain = function() {
+			process.exit();
+		}
 
-		async.map( users, function( user, callback ) {
-			callback( null, startStream( user, defaults._id ) );
-		}, function( err, results ) {
-			if ( err ) {
-				console.log( err );
-			}
-
-			for ( let i = 0; i < results.length; i++ ) {
-				console.log( results[i].stream );
-			}
-		} );
-
-		while ( true ) {
-			if ( ( Number ) ( new Date() ) >= endTime ) {
-				process.exit();
-			}
+		for ( let i = 0; i < users.length; i++ ) {
+			q.push( users[i], defaults._id, function() {} );
 		}
 	} );
 } );
 
-function startStream( user, defaultsId ) {
-	let result = {};
-	result.user = user;
-	result.defaultsId = defaultsId;
-
-	result.client = new Twitter({
+function startStream( user, defaultsId, callback ) {
+	let client = new Twitter({
 		consumer_key: user.cKey,
 		consumer_secret: user.cSecret,
 		access_token_key: user.aKey,
 		access_token_secret: user.aSecret,
 	});
 
-	result.track = '';
+	let track = '';
 
-	for ( let i = 0; i < result.user.filterTerms.length; i++ ) {
-		result.track += result.user.filterTerms[i];
+	for ( let i = 0; i < user.filterTerms.length; i++ ) {
+		track += user.filterTerms[i];
 
-		if ( i != result.user.filterTerms.length - 1 ) {
-			result.track += ',';
+		if ( i != user.filterTerms.length - 1 ) {
+			track += ',';
 		}
 	}
 
-	result.stream = result.client.stream( 'statuses/filter', { track: result.track, tweet_mode: 'extended' } );
+	let stream = client.stream( 'statuses/filter', { track: track, tweet_mode: 'extended' } );
 
-	result.stream.on( 'data', function( event ) {
+	stream.on( 'data', function( event ) {
 		if ( event.user && !event.retweeted_status && !event.possibly_sensitive && event.user.followers_count >= 50000 && event.lang == 'en' ) {
 			let text = ( event.truncated ) ? event.extended_tweet.full_text : event.text;
 
-			User.findById( result.user._id, function( err, user ) {
+			User.findById( user._id, function( err, user ) {
 				if ( err ) {
 					console.log( err );
 				}
 
 				if ( !matchId( user.bannedUserIds, event.user.id ) && !matchId( user.coolingUserIds, event.user.id ) && !matchWord( user.bannedWords, text ) ) {
 
-					DefaultUser.findById( result.defaultsId, function( err, defaults ) {
+					DefaultUser.findById( defaultsId, function( err, defaults ) {
 						if ( err ) {
 							console.log( err );
 						}
@@ -109,11 +93,15 @@ function startStream( user, defaultsId ) {
 		}
 	} );
 
-	result.stream.on( 'error', function( err ) {
+	stream.on( 'error', function( err ) {
 		console.log( err );
 	} );
 
-	return result;
+	while ( true ) {
+		if ( ( Number ) ( new Date() ) >= endTime ) {
+			return callback();
+		}
+	}
 }
 
 function matchId( list, id ) {
