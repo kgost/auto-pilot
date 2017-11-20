@@ -51,7 +51,7 @@ function startStream( user, defaultsId ) {
 		}
 	}
 
-	let stream = client.stream( 'statuses/filter', { track: track } );
+	let stream = client.stream( 'statuses/filter?tweet_mode=extended', { track: track } );
 
 	stream.on( 'data', function( event ) {
 		console.log( event );
@@ -101,7 +101,7 @@ function startStream( user, defaultsId ) {
 		console.log( err );
 	} );
 
-	return stream;
+	return this;
 }
 
 function matchId( list, id ) {
