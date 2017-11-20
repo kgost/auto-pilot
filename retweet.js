@@ -33,6 +33,10 @@ User.find( {}, function( err, users ) {
 
 		let k = Math.floor( Math.random() * retweets.length );
 		client.post('statuses/retweet/' + user.potentialRTs[k].id, function(error, tweet, response) {
+			console.log( error );
+			console.log( tweet );
+			console.log( response );
+
 			user.potentialRTs.splice( k, 1 );
 			user.save( function( err ) {
 				callback( err );

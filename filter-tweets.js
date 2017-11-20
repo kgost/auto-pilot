@@ -77,7 +77,6 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 									}
 
 									user.potentialRTs.splice( start, 0, { id: event.id, userId: event.user.id, followers: event.user.followers_count, followingUser: following } );
-									console.log( user );
 									user.save();
 								}
 							} );
@@ -91,6 +90,12 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 			} );
 
 			streams.push( stream );
+		}
+
+		while ( true ) {
+			if ( ( Number ) ( new Date() ) >= endTime ) {
+				process.exit();
+			}
 		}
 	} );
 } );
