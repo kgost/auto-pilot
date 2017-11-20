@@ -32,6 +32,8 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 } );
 
 function startStream( user, defaultsId ) {
+	console.log( 'jeff' );
+
 	const client = new Twitter({
 		consumer_key: user.cKey,
 		consumer_secret: user.cSecret,
