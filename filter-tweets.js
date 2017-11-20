@@ -14,21 +14,84 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 		throw err;
 	}
 
+	let defaultsId = defaults._id;
+
 	User.find( {}, function( err, users ) {
 		if ( err ) {
 			throw err;
 		}
 
-		startStream( { user: users[0], defaultsId: defaults._id, that: this } )
+		for ( let i = 0; i < users.length; i++ ) {
+			let user = users[i];
 
-		// let q = async.queue( startStream, 30 );
-		// q.drain = function() {
-		// 	process.exit();
-		// }
+			let client = new Twitter({
+				consumer_key: user.cKey,
+				consumer_secret: user.cSecret,
+				access_token_key: user.aKey,
+				access_token_secret: user.aSecret,
+			});
 
-		// for ( let i = 0; i < users.length; i++ ) {
-		// 	q.push( { user: users[i], defaultsId: defaults._id } );
-		// }
+			let track = '';
+
+			for ( let i = 0; i < user.filterTerms.length; i++ ) {
+				track += user.filterTerms[i];
+
+				if ( i != user.filterTerms.length - 1 ) {
+					track += ',';
+				}
+			}
+
+			let stream = client.stream( 'statuses/filter', { track: track, tweet_mode: 'extended' } );
+
+			stream.on( 'data', function( event ) {
+				if ( event.user && !event.retweeted_status && !event.possibly_sensitive && event.user.followers_count >= 50000 && event.lang == 'en' ) {
+					let text = ( event.truncated ) ? event.extended_tweet.full_text : event.text;
+
+					User.findById( user._id, function( err, user ) {
+						if ( err ) {
+							console.log( err );
+						}
+
+						if ( !matchId( user.bannedUserIds, event.user.id ) && !matchId( user.coolingUserIds, event.user.id ) && !matchWord( user.bannedWords, text ) ) {
+
+							DefaultUser.findById( defaultsId, function( err, defaults ) {
+								if ( err ) {
+									console.log( err );
+								}
+
+								if ( !matchId( defaults.bannedUserIds, event.user.id ) && !matchWord( defaults.bannedWords, text ) ) {
+									let following = ( event.user.following == null ) ? false : true;
+									let start = 0;
+									let end = user.potentialRTs.length - 1;
+
+									while ( start <= end ) {
+										let mid = parseInt( ( end + start ) / 2 );
+
+										if ( user.potentialRTs[mid].followers == event.user.followers_count ) {
+											break;
+										} else if ( user.potentialRTs[mid].followers < event.user.followers_count ) {
+											start = mid + 1;
+										} else if ( user.potentialRTs[mid].followers > event.user.followers_count ) {
+											end = mid - 1;
+										}
+									}
+
+									user.potentialRTs.splice( start, 0, { id: event.id, userId: event.user.id, followers: event.user.followers_count, followingUser: following } );
+									console.log( user );
+									user.save();
+								}
+							} );
+						}
+					} );
+				}
+			} );
+
+			stream.on( 'error', function( err ) {
+				console.log( err );
+			} );
+
+			streams.push( stream );
+		}
 	} );
 } );
 
