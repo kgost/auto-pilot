@@ -7,6 +7,7 @@ const Twitter 		= require( 'twitter' ),
 mongoose.connect( 'mongodb://localhost/auto_pilot' );
 
 const endTime = ( Number ) ( new Date() ) + 43200000;
+let streams = [];
 
 DefaultUser.findOne( {}, function( err, defaults ) {
 	if ( err ) {
@@ -19,7 +20,7 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 		}
 
 		for ( let i = 0; i < users.length; i++ ) {
-			startStream( users[i], defaults._id );
+			streams.push( startStream( users[i], defaults._id ) );
 		}
 
 		while ( (Number) (new Date()) < endTime ) {
@@ -97,6 +98,8 @@ function startStream( user, defaultsId ) {
 	stream.on( 'error', function( err ) {
 		console.log( err );
 	} );
+
+	return stream;
 }
 
 function matchId( list, id ) {
