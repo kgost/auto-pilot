@@ -85,6 +85,7 @@ function startStream( user, defaultsId ) {
 						}
 
 						user.potentialRTs.splice( start, 0, { id: event.id, userId: event.user.id, followers: event.user.followers_count, followingUser: following } );
+						console.log( user );
 						user.save();
 				}
 			} );
