@@ -54,6 +54,8 @@ function startStream( user, defaultsId ) {
 	let stream = client.stream( 'statuses/filter?tweet_mode=extended', { track: track } );
 
 	stream.on( 'data', function( event ) {
+		console.log( event );
+		
 		User.findById( user._id, function( err, user ) {
 			if ( err ) {
 				console.log( err );
@@ -63,8 +65,6 @@ function startStream( user, defaultsId ) {
 				if ( err ) {
 					console.log( err );
 				}
-
-				console.log( event );
 					
 				if ( event.user && !event.retweeted_status && !event.possibly_sensitive 
 					&& event.user.followers_count >= 50000 && event.lang == 'en' 
