@@ -19,7 +19,7 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 		}
 
 		for ( let i = 0; i < users.length; i++ ) {
-			startStream( user[i]._id, defaults._id );
+			startStream( user[i], defaults._id );
 		}
 
 		while ( (Number) (new Date()) < endTime ) {
@@ -30,7 +30,7 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 	} );
 } );
 
-function startStream( userId, defaultsId ) {
+function startStream( user, defaultsId ) {
 	const client = new Twitter({
 		consumer_key: user.cKey,
 		consumer_secret: user.cSecret,
@@ -51,7 +51,7 @@ function startStream( userId, defaultsId ) {
 	let stream = client.stream( 'statuses/filter?tweet_mode=extended', { track: track } );
 
 	stream.on( 'data', function( event ) {
-		User.findById( userId, function( err, user ) {
+		User.findById( user._id, function( err, user ) {
 			if ( err ) {
 				console.log( err );
 			}
