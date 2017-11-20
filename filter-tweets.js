@@ -48,7 +48,7 @@ function startStream( userId, defaultsId ) {
 		}
 	}
 
-	let stream = client.stream( 'statuses/filter', { track: track } );
+	let stream = client.stream( 'statuses/filter?tweet_mode=extended', { track: track } );
 
 	stream.on( 'data', function( event ) {
 		User.findById( userId, function( err, user ) {
@@ -66,8 +66,8 @@ function startStream( userId, defaultsId ) {
 					&& !matchId( defaults.bannedUserIds, event.user.id ) 
 					&& !matchId( user.bannedUserIds, event.user.id ) 
 					&& !matchId( user.coolingUserIds, event.user.id )
-					&& !matchWord( defaults.bannedWords, event.text )
-					&& !matchWord( user.bannedWords, event.text ) ) {
+					&& !matchWord( defaults.bannedWords, event.full_text )
+					&& !matchWord( user.bannedWords, event.full_text ) ) {
 						let following = ( event.user.following == null ) ? false : true;
 						let start = 0;
 						let end = user.potentialRTs.length - 1;
@@ -125,19 +125,10 @@ function matchId( list, id ) {
 	return false;
 }
 
-function matchWord( list, word ) {
-	let start = 0;
-	let end = list.length - 1;
-
-	while ( start <= end ) {
-		let mid = parseInt( ( end + start ) / 2 );
-
-		if ( list[mid] == word ) {
+function matchWord( list, text ) {
+	for ( let i = 0; i < list.length; i++ ) {
+		if ( text.indexOf( list[i] ) != -1 ) {
 			return true;
-		} else if ( list[mid] < word ) {
-			start = mid + 1;
-		} else if ( list[mid] > word ) {
-			end = mid - 1;
 		}
 	}
 
