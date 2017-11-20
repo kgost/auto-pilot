@@ -96,8 +96,6 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 } );
 
 function startStream( task, callback ) {
-	this = task.that;
-
 	let user = task.user;
 	let defaultsId = task.defaultsId;
 
