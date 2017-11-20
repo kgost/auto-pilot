@@ -104,12 +104,6 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 		// for ( let i = 0; i < users.length; i++ ) {
 		// 	streams.push( startStream( users[i], defaults._id ) );
 		// }
-
-		while ( (Number) (new Date()) < endTime ) {
-			
-		}
-
-		process.exit();
 	} );
 } );
 
