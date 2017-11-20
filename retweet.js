@@ -1,8 +1,8 @@
 const Twitter 		= require( 'twitter' ),
 			mongoose 		= require( 'mongoose' ),
 			async				= require( 'async' ),
-			User				= require( '../models/user' ),
-			DefaultUser	= require( '../models/defaultUser' );
+			User				= require( './models/user' ),
+			DefaultUser	= require( './models/defaultUser' );
 
 mongoose.connect( 'mongodb://localhost/auto_pilot' );
 
