@@ -25,7 +25,7 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 		}
 
 		for ( let i = 0; i < users.length; i++ ) {
-			q.push( users[i], defaults._id, function() {} );
+			q.push( users[i], defaults._id );
 		}
 	} );
 } );
