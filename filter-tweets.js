@@ -39,7 +39,7 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 			}
 		}
 
-		let stream = client.stream( 'statuses/filter?tweet_mode=extended', { track: track } );
+		let stream = client.stream( 'statuses/filter', { track: track, tweet_mode: 'extended' } );
 
 		stream.on( 'data', function( event ) {
 			console.log( event );
