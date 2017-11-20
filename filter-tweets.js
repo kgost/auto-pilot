@@ -64,7 +64,7 @@ function startStream( user, defaultsId ) {
 		}
 	}
 
-	result.stream = client.stream( 'statuses/filter', { track: result.track, tweet_mode: 'extended' } );
+	result.stream = result.client.stream( 'statuses/filter', { track: result.track, tweet_mode: 'extended' } );
 
 	result.stream.on( 'data', function( event ) {
 		if ( event.user && !event.retweeted_status && !event.possibly_sensitive && event.user.followers_count >= 50000 && event.lang == 'en' ) {
