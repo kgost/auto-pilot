@@ -30,7 +30,7 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 			}
 
 			for ( let i = 0; i < results.length; i++ ) {
-				console.log( results[i] );
+				console.log( results[i].stream );
 			}
 		} );
 
