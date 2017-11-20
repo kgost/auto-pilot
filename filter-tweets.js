@@ -19,9 +19,21 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 			throw err;
 		}
 
-		for ( let i = 0; i < users.length; i++ ) {
-			streams.push( startStream( users[i], defaults._id ) );
-		}
+		async.map( users, function( user, callback ) {
+			callback( null, startStream( user, defaults._id ) );
+		}, function( err, results ) {
+			if ( err ) {
+				console.log( err );
+			}
+
+			for ( let i = 0; i < results.length; i++ ) {
+				console.log( results[i] );
+			}
+		} );
+
+		// for ( let i = 0; i < users.length; i++ ) {
+		// 	streams.push( startStream( users[i], defaults._id ) );
+		// }
 
 		while ( (Number) (new Date()) < endTime ) {
 			
@@ -48,8 +60,6 @@ function startStream( user, defaultsId ) {
 			track += ',';
 		}
 	}
-
-	console.log( track );
 
 	let stream = client.stream( 'statuses/filter?tweet_mode=extended', { track: track } );
 
