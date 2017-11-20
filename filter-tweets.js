@@ -44,6 +44,7 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 			let stream = client.stream( 'statuses/filter', { track: track, tweet_mode: 'extended' } );
 
 			stream.on( 'data', function( event ) {
+				console.log( event );
 				if ( event.user && !event.retweeted_status && !event.possibly_sensitive && event.user.followers_count >= 50000 && event.lang == 'en' ) {
 					let text = ( event.truncated ) ? event.extended_tweet.full_text : event.text;
 
