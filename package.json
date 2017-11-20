@@ -1,0 +1,17 @@
+{
+  "name": "itsastitch",
+  "version": "1.0.0",
+  "description": "twitter bot for itsastitchsewing",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "jack",
+  "license": "ISC",
+  "dependencies": {
+    "fast-csv": "^2.4.1",
+    "fs": "0.0.1-security",
+    "mongoose": "^4.13.4",
+    "twitter": "^1.7.1"
+  }
+}

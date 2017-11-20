@@ -1,0 +1,145 @@
+const Twitter 		= require( 'twitter' ),
+			mongoose 		= require( 'mongoose' ),
+			async				= require( 'async' ),
+			User				= require( '../models/user' ),
+			DefaultUser	= require( '../models/defaultUser' );
+
+mongoose.connect( 'mongodb://localhost/auto_pilot' );
+
+const endTime = ( Number ) ( new Date() ) + 43200000;
+
+DefaultUser.findOne( {}, function( err, defaults ) {
+	if ( err ) {
+		throw err;
+	}
+
+	User.find( {}, function( err, users ) {
+		if ( err ) {
+			throw err;
+		}
+
+		for ( let i = 0; i < users.length; i++ ) {
+			startStream( user[i]._id, defaults._id );
+		}
+
+		while ( (Number) (new Date()) < endTime ) {
+			
+		}
+
+		process.exit();
+	} );
+} );
+
+function startStream( userId, defaultsId ) {
+	const client = new Twitter({
+		consumer_key: user.cKey,
+		consumer_secret: user.cSecret,
+		access_token_key: user.aKey,
+		access_token_secret: user.aSecret,
+	});
+
+	let track = '';
+
+	for ( let i = 0; i < user.filterTerms.length; i++ ) {
+		track += user.filterTerms[i];
+
+		if ( i != user.filterTerms.length - 1 ) {
+			track += ',';
+		}
+	}
+
+	let stream = client.stream( 'statuses/filter', { track: track } );
+
+	stream.on( 'data', function( event ) {
+		User.findById( userId, function( err, user ) {
+			if ( err ) {
+				console.log( err );
+			}
+
+			DefaultUser.findById( defaultsId, function( err, defaults ) {
+				if ( err ) {
+					console.log( err );
+				}
+					
+				if ( event.user && !event.retweeted_status && !event.possibly_sensitive 
+					&& event.user.followers_count >= 50000 && event.lang == 'en' 
+					&& !matchId( defaults.bannedUserIds, event.user.id ) 
+					&& !matchId( user.bannedUserIds, event.user.id ) 
+					&& !matchId( user.coolingUserIds, event.user.id )
+					&& !matchWord( defaults.bannedWords, event.text )
+					&& !matchWord( user.bannedWords, event.text ) ) {
+						let following = ( event.user.following == null ) ? false : true;
+						let start = 0;
+						let end = user.potentialRTs.length - 1;
+
+						while ( start <= end ) {
+							let mid = parseInt( ( end + start ) / 2 );
+
+							if ( user.potentialRTs[mid].followers == event.user.followers_count ) {
+								break;
+							} else if ( user.potentialRTs[mid].followers < event.user.followers_count ) {
+								start = mid + 1;
+							} else if ( user.potentialRTs[mid].followers > event.user.followers_count ) {
+								end = mid - 1;
+							}
+						}
+
+						user.potentialRTs.splice( start, 0, { id: event.id, userId: event.user.id, followers: event.user.followers_count, followingUser: following } );
+						user.save();
+				}
+			} );
+		} );
+	} );
+
+	stream.on( 'error', function( err ) {
+		console.log( err );
+	} );
+}
+
+function matchId( list, id ) {
+	let start = 0;
+	let end = list.length - 1;
+
+	while ( start <= end ) {
+		let mid = parseInt( ( end + start ) / 2 );
+
+		if ( list[mid].id ) {
+			if ( list[mid].id == id ) {
+				return true;
+			} else if ( list[mid].id < id ) {
+				start = mid + 1;
+			} else if ( list[mid].id > id ) {
+				end = mid - 1;
+			}
+		} else {
+			if ( list[mid] == id ) {
+				return true;
+			} else if ( list[mid] < id ) {
+				start = mid + 1;
+			} else if ( list[mid] > id ) {
+				end = mid - 1;
+			}
+		}
+	}
+
+	return false;
+}
+
+function matchWord( list, word ) {
+	let start = 0;
+	let end = list.length - 1;
+
+	while ( start <= end ) {
+		let mid = parseInt( ( end + start ) / 2 );
+
+		if ( list[mid] == word ) {
+			return true;
+		} else if ( list[mid] < word ) {
+			start = mid + 1;
+		} else if ( list[mid] > word ) {
+			end = mid - 1;
+		}
+	}
+
+	return false;
+}
