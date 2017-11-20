@@ -42,49 +42,46 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 		let stream = client.stream( 'statuses/filter', { track: track, tweet_mode: 'extended' } );
 
 		stream.on( 'data', function( event ) {
-			User.findById( user._id, function( err, user ) {
-				if ( err ) {
-					console.log( err );
-				}
+			if ( event.user && !event.retweeted_status && !event.possibly_sensitive && event.user.followers_count >= 50000 && event.lang == 'en' ) {
+				let text = ( event.truncated ) ? event.extended_tweet.full_text : event.text;
 
-				DefaultUser.findById( defaultsId, function( err, defaults ) {
+				User.findById( user._id, function( err, user ) {
 					if ( err ) {
 						console.log( err );
 					}
 
-					if ( !event.retweeted_status ) {
-						console.log( event );
-					}
-						
-					if ( event.user && !event.retweeted_status && !event.possibly_sensitive 
-						&& event.user.followers_count >= 50000 && event.lang == 'en' 
-						&& !matchId( defaults.bannedUserIds, event.user.id ) 
-						&& !matchId( user.bannedUserIds, event.user.id ) 
-						&& !matchId( user.coolingUserIds, event.user.id )
-						&& !matchWord( defaults.bannedWords, event.extended_tweet.full_text )
-						&& !matchWord( user.bannedWords, event.extended_tweet.full_text ) ) {
-							let following = ( event.user.following == null ) ? false : true;
-							let start = 0;
-							let end = user.potentialRTs.length - 1;
+					if ( !matchId( user.bannedUserIds, event.user.id ) && !matchId( user.coolingUserIds, event.user.id ) && !matchWord( user.bannedWords, text ) ) {
 
-							while ( start <= end ) {
-								let mid = parseInt( ( end + start ) / 2 );
-
-								if ( user.potentialRTs[mid].followers == event.user.followers_count ) {
-									break;
-								} else if ( user.potentialRTs[mid].followers < event.user.followers_count ) {
-									start = mid + 1;
-								} else if ( user.potentialRTs[mid].followers > event.user.followers_count ) {
-									end = mid - 1;
-								}
+						DefaultUser.findById( defaultsId, function( err, defaults ) {
+							if ( err ) {
+								console.log( err );
 							}
 
-							user.potentialRTs.splice( start, 0, { id: event.id, userId: event.user.id, followers: event.user.followers_count, followingUser: following } );
-							console.log( user );
-							user.save();
+							if ( !matchId( defaults.bannedUserIds, event.user.id ) && !matchWord( defaults.bannedWords, text ) ) {
+									let following = ( event.user.following == null ) ? false : true;
+									let start = 0;
+									let end = user.potentialRTs.length - 1;
+
+									while ( start <= end ) {
+										let mid = parseInt( ( end + start ) / 2 );
+
+										if ( user.potentialRTs[mid].followers == event.user.followers_count ) {
+											break;
+										} else if ( user.potentialRTs[mid].followers < event.user.followers_count ) {
+											start = mid + 1;
+										} else if ( user.potentialRTs[mid].followers > event.user.followers_count ) {
+											end = mid - 1;
+										}
+									}
+
+									user.potentialRTs.splice( start, 0, { id: event.id, userId: event.user.id, followers: event.user.followers_count, followingUser: following } );
+									console.log( user );
+									user.save();
+							}
+						} );
 					}
 				} );
-			} );
+			}
 		} );
 
 		stream.on( 'error', function( err ) {
