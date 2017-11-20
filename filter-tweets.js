@@ -52,7 +52,7 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 						console.log( err );
 					}
 
-					console.log( event.extended_tweet.full_text );
+					console.log( event );
 						
 					if ( event.user && !event.retweeted_status && !event.possibly_sensitive 
 						&& event.user.followers_count >= 50000 && event.lang == 'en' 
