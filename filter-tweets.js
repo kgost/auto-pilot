@@ -32,8 +32,6 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 } );
 
 function startStream( user, defaultsId ) {
-	console.log( 'jeff' );
-
 	const client = new Twitter({
 		consumer_key: user.cKey,
 		consumer_secret: user.cSecret,
@@ -50,6 +48,8 @@ function startStream( user, defaultsId ) {
 			track += ',';
 		}
 	}
+
+	console.log( track );
 
 	let stream = client.stream( 'statuses/filter?tweet_mode=extended', { track: track } );
 
