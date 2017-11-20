@@ -19,19 +19,20 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 			throw err;
 		}
 
-		let q = async.queue( startStream, 30 );
-		q.drain = function() {
-			process.exit();
-		}
+		startStream( { user: users[0], defaultsId: defaults._id } )
 
-		for ( let i = 0; i < users.length; i++ ) {
-			q.push( { user: users[i], defaultsId: defaults._id } );
-		}
+		// let q = async.queue( startStream, 30 );
+		// q.drain = function() {
+		// 	process.exit();
+		// }
+
+		// for ( let i = 0; i < users.length; i++ ) {
+		// 	q.push( { user: users[i], defaultsId: defaults._id } );
+		// }
 	} );
 } );
 
 function startStream( task, callback ) {
-	console.log( task );
 	let user = task.user;
 	let defaultsId = task.defaultsId;
 
@@ -100,6 +101,8 @@ function startStream( task, callback ) {
 	stream.on( 'error', function( err ) {
 		console.log( err );
 	} );
+
+	console.log( stream );
 
 	while ( true ) {
 		if ( ( Number ) ( new Date() ) >= endTime ) {
