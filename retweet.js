@@ -32,7 +32,7 @@ User.find( {}, function( err, users ) {
 		}
 
 		let k = Math.floor( Math.random() * retweets.length );
-		console.log( user.potentialRTs[k].id );
+		console.log( 'statuses/retweet/' + user.potentialRTs[k].id );
 		client.post('statuses/retweet/' + user.potentialRTs[k].id, function(error, tweet, response) {
 			console.log( tweet );
 
