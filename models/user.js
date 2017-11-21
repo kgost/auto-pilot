@@ -21,7 +21,7 @@ var userSchema = new Schema({
 		count: Number
 	}],
 	potentialRTs: [{
-		id: Number,
+		id: String,
 		userId: Number,
 		followers: Number,
 		followingUser: Boolean

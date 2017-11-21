@@ -77,7 +77,7 @@ DefaultUser.findOne( {}, function( err, defaults ) {
 										}
 									}
 
-									user.potentialRTs.splice( start, 0, { id: event.id, userId: event.user.id, followers: event.user.followers_count, followingUser: following } );
+									user.potentialRTs.splice( start, 0, { id: event.id_str, userId: event.user.id, followers: event.user.followers_count, followingUser: following } );
 									user.save( function( err ) {
 										if ( ( Number ) ( new Date() ) >= endTime ) {
 											process.exit();
