@@ -23,9 +23,10 @@ User.find( {}, function( err, users ) {
 				let end = user.coolingUserIds.length - 1;
 
 				while ( start <= end ) {
-					let mid = ( int ) ( ( end + start ) / 2 );
+					let mid = parseInt( ( end + start ) / 2 );
 
 					if ( user.coolingUserIds[mid].id == user.usersTwoDays[i].id ) {
+						start = mid;
 						break;
 					} else if ( user.coolingUserIds[mid].id < user.usersTwoDays[i].id ) {
 						start = mid + 1;
@@ -41,7 +42,7 @@ User.find( {}, function( err, users ) {
 		}
 
 		for ( let i = 0; i < user.coolingUserIds.length; i++ ) {
-			if ( endTime - user.coolingUserIds[i].date >= 172800000 ) {
+			if ( ( Number ) ( new Date() ) - user.coolingUserIds[i].date >= 172800000 ) {
 				user.usersTwoDays.splice( i, 1 );
 				i--;
 			}

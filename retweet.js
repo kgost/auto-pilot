@@ -33,7 +33,27 @@ User.find( {}, function( err, users ) {
 
 		let k = Math.floor( Math.random() * retweets.length );
 		client.post('statuses/retweet/' + user.potentialRTs[k].id, function(error, tweet, response) {
-			console.log( tweet );
+			let recentUser = false;
+			let start = 0;
+			let end = user.usersTwoDays.length - 1;
+
+			while ( start <= end ) {
+				let mid = ( int ) ( ( end + start ) / 2 );
+
+				if ( user.usersTwoDays[mid].id == user.potentialRTs[k].id ) {
+					user.usersTwoDays[mid].count += 1;
+					recentUser = true;
+					break;
+				} else if ( user.usersTwoDays[mid].id < user.usersTwoDays[i].id ) {
+					start = mid + 1;
+				} else if ( user.usersTwoDays[mid].id > user.usersTwoDays[i].id ) {
+					end = mid - 1;
+				}
+			}
+
+			if ( !recentUser ) {
+				user.usersTwoDays.splice( start, 0, { date: ( Number ) ( new Date() ), id: user.potentialRTs[k].userId, count: 1 } );
+			}
 
 			user.potentialRTs.splice( k, 1 );
 			user.save( function( err ) {
