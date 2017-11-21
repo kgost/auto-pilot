@@ -12,7 +12,7 @@ User.find( {}, function( err, users ) {
 	}
 
 	async.map( users, function( user, callback ) {
-		user.potentialRTs = [{id: 1}];
+		user.potentialRTs = [];
 
 		for ( let i = 0; i < user.usersTwoDays.length; i++ ) {
 			if ( ( Number ) ( new Date() ) - user.usersTwoDays[i].date >= 172800000 ) {
