@@ -50,7 +50,7 @@ User.find( {}, function( err, users ) {
 
 		user.save( function( err ) {
 			callback( err );
-		} )
+		} );
 	}, function( err, results ) {
 		if ( err ) {
 			console.log( err );
