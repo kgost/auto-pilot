@@ -33,6 +33,7 @@ User.find( {}, function( err, users ) {
 
 		let k = Math.floor( Math.random() * retweets.length );
 		client.post('statuses/retweet/' + user.potentialRTs[k].id, function(error, tweet, response) {
+			console.log( tweet );
 			let recentUser = false;
 			let start = 0;
 			let end = user.usersTwoDays.length - 1;
